@@ -8,6 +8,8 @@ class DefaultConfig:
     DEFAULT_FROM_EMAIL = 'from@example.com'
     FROM_DOMAIN = 'example.com'
 
+    PROVIDER_ORDER = ['sendgrid', 'mailgun', 'mandrill', 'ses']
+
     # Configs for different email providers
     SENDGRID_API_KEY = ''
 
