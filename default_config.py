@@ -1,8 +1,8 @@
-"""Configuration of the webserver."""
+"""Default configuration of the webserver."""
 
 
-class Config:
-    """Main configuration class."""
+class DefaultConfig:
+    """Default configuration."""
 
     DEBUG = True
     DEFAULT_FROM_EMAIL = 'from@example.com'
