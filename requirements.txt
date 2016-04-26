@@ -8,7 +8,7 @@ Flask-Failsafe==0.2
 Flask-JSGlue==0.3
 itsdangerous==0.24
 Jinja2==2.8
-mailgun==0.1.1
+mailgun2==1.0.0
 mandrill==1.0.57
 MarkupSafe==0.23
 mccabe==0.4.0
@@ -17,11 +17,12 @@ pep257==0.7.0
 pep8==1.7.0
 pyactiveresource==1.0.1
 pyflakes==1.0.0
+pyjade==4.0.0
 pyparsing==2.1.1
 python-http-client==1.2.3
 requests==2.9.1
 sendgrid==2.2.1
-SES-Mailer==0.13.0
+-e git+https://github.com/JelteF/ses-mailer.git@9d24eccee88f2fb5980837a5febfccc76766be08#egg=SES_Mailer
 six==1.10.0
 smtpapi==0.3.1
 Werkzeug==0.11.9
