@@ -10,7 +10,7 @@ from ses_mailer import Mail as SesMailer
 
 from app import app, config
 
-mailers = {
+_mailers = {
     'sendgrid': sendgrid.SendGridClient(config['SENDGRID_API_KEY']),
     'mailgun': Mailgun(config['MAILGUN_FROM_DOMAIN'],
                        config['MAILGUN_PRIVATE_KEY'],
@@ -20,45 +20,67 @@ mailers = {
 }
 
 
-def send_mail(to_email, subject, body, from_email=None):
-    """Simple interface to send an actual email."""
+class RedundantMail():
+    """A simple class to send email using multiple providers."""
 
-    if from_email is None:
-        from_email = config['DEFAULT_FROM_EMAIL']
+    def __init__(self, to_email, subject, body, from_email=None):
+        self.to_email = to_email
+        self.subject = subject
+        self.body = body
 
-    for provider in config['PROVIDER_ORDER']:
-        mailer = mailers[provider]
+        if from_email is None:
+            from_email = config['DEFAULT_FROM_EMAIL']
+        self.from_email = from_email
 
-        if provider == 'sendgrid':
-            message = sendgrid.Mail(to=to_email, subject=subject, text=body,
-                                    from_email=from_email)
-
+    def send(self):
+        """Try to send the email all available providers."""
+        for provider in config['PROVIDER_ORDER']:
             try:
-                status, _ = mailer.send(message)
-            except:
+                if provider == 'sendgrid':
+                    self.sendgrid()
+                elif provider == 'mailgun':
+                    self.mailgun()
+                elif provider == 'mandrill':
+                    self.mandrill()
+                elif provider == 'ses':
+                    self.ses()
+            except Exception as e:
+                print(e)
                 continue
-
-            if status == 200:
+            else:
                 break
 
-        elif provider == 'mailgun':
+        else:
+            raise RuntimeError('All providers failed, something serious is '
+                               'probably wrong.')
+        return provider
 
-            try:
-                resp = mailer.send_message(from_email, [to_email],
-                                           subject=subject,
-                                           text=body)
-            except:
-                continue
+    def mailgun(self):
+        """Send with Mailgun."""
+        resp = _mailers['mailgun'].send_message(self.from_email,
+                                                [self.to_email],
+                                                Subject=self.subject,
+                                                Text=self.body)
 
-            if resp.ok:
-                break
+        if not resp.ok:
+            raise RuntimeError('Mailer returned an error.', resp)
 
-        elif provider == 'mandrill':
-            ...
+    def sendgrid(self):
+        """Send with Sendgrid."""
+        message = sendgrid.Mail(to=self.to_email,
+                                subject=self.subject,
+                                text=self.body,
+                                from_email=self.from_email)
 
-        elif provider == 'ses':
-            ...
-    else:
-        raise RuntimeError('All providers failed, something else is probably '
-                           'wrong')
-    return provider
+        status, error_msg = _mailers['sendgrid'].send(message)
+
+        if status != 200:
+            raise RuntimeError('Mailer returned an error.', status, error_msg)
+
+    def mandrill(self):
+        """Send with Mandrill."""
+        ...
+
+    def ses(self):
+        """Send with Amazon SES."""
+        ...

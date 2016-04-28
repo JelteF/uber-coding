@@ -2,7 +2,7 @@
 
 from flask import render_template, url_for, redirect, request
 
-from app.mail import send_mail
+from app.mail import RedundantMail
 from app import app
 
 
@@ -20,6 +20,6 @@ def send_email():
     used_form_vals = {k: request.form[k] for k in
                       ['to_email', 'subject', 'body']}
 
-    send_mail(**used_form_vals)
+    RedundantMail(**used_form_vals).send()
 
     return redirect(url_for('home'))
