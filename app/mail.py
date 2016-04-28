@@ -18,8 +18,9 @@ _mailers = {
                        config['MAILGUN_PRIVATE_KEY'],
                        config['MAILGUN_PUBLIC_KEY']),
     'mandrill': Mandrill(config['MANDRILL_API_KEY']),
-    'ses': SesMailer().init_app(app),
+    'ses': SesMailer(),
 }
+_mailers['ses'].init_app(app)
 
 
 class RedundantMail():
@@ -58,29 +59,47 @@ class RedundantMail():
 
     def mailgun(self):
         """Send with Mailgun."""
+
         resp = _mailers['mailgun'].send_message(self.from_email,
                                                 [self.to_email],
                                                 Subject=self.subject,
                                                 Text=self.body)
 
         if not resp.ok:
-            raise RuntimeError('Mailer returned an error.', resp)
+            raise RuntimeError('Mailgun returned an error.', resp)
 
     def sendgrid(self):
         """Send with Sendgrid."""
-        message = sendgrid.Mail(to=self.to_email,
+
+        message = sendgrid.Mail(from_email=self.from_email,
+                                to=self.to_email,
                                 subject=self.subject,
-                                text=self.body,
-                                from_email=self.from_email)
+                                text=self.body)
 
         status, error_msg = _mailers['sendgrid'].send(message)
 
         if status != 200:
-            raise RuntimeError('Mailer returned an error.', status, error_msg)
+            raise RuntimeError('Sendgrid returned an error.', status,
+                               error_msg)
 
     def mandrill(self):
         """Send with Mandrill."""
 
+        statuses = _mailers['mandrill'].messages.send(message={
+            'from_email': self.from_email,
+            'to': [{'email': self.to_email}],
+            'subject': self.subject,
+            'text': self.body,
+        })
+
+        for s in statuses:
+            if s == 'rejected' or s == 'invalid':
+                raise RuntimeError('Mandrill returned an error.', s)
+
     def ses(self):
         """Send with Amazon SES."""
-        ...
+
+        _mailers['ses'].send(sender=self.from_email,
+                             to=self.to_email,
+                             subject=self.subject,
+                             body=self.body)

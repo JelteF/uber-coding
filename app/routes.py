@@ -29,7 +29,7 @@ def send_mail():
         logging.exception(str(e))
         return_code = 502
     else:
-        flash("Email was successfully sent using " + provider.capitalize(),
+        flash("Email was successfully sent using %s." % provider.capitalize(),
               'success')
         return_code = 200
 
