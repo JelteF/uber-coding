@@ -6,7 +6,10 @@ from flask_jsglue import JSGlue
 app = Flask(__name__)
 JSGlue(app)
 
-app.config.from_object('config.Config')
+try:
+    app.config.from_object('config.Config')
+except:
+    app.config.from_object('default_config.DefaultConfig')
 config = app.config
 
 # Jinja initialization to use PyJade
