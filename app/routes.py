@@ -1,6 +1,6 @@
 """Routes of the web application."""
 
-from flask import render_template, url_for, redirect, request
+from flask import render_template, url_for, redirect, request, flash
 
 from app.mail import RedundantMail
 from app import app
@@ -20,6 +20,12 @@ def send_email():
     used_form_vals = {k: request.form[k] for k in
                       ['to_email', 'subject', 'body']}
 
-    RedundantMail(**used_form_vals).send()
+    try:
+        provider = RedundantMail(**used_form_vals).send()
+    except RuntimeError as e:
+        flash(e.args[0], 'danger')
+    else:
+        flash("Email was successfully sent using " + provider.capitalize(),
+              'success')
 
     return redirect(url_for('home'))

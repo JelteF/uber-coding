@@ -5,6 +5,7 @@ class DefaultConfig:
     """Default configuration."""
 
     DEBUG = True
+    SECRET_KEY = 'SOMETHING_SUPER_SECRET'
     DEFAULT_FROM_EMAIL = 'from@example.com'
     FROM_DOMAIN = 'example.com'
 

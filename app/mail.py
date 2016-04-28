@@ -34,6 +34,9 @@ class RedundantMail():
 
     def send(self):
         """Try to send the email all available providers."""
+
+        sub_errors = []
+
         for provider in config['PROVIDER_ORDER']:
             try:
                 if provider == 'sendgrid':
@@ -45,15 +48,13 @@ class RedundantMail():
                 elif provider == 'ses':
                     self.ses()
             except Exception as e:
-                print(e)
+                sub_errors.append(e)
                 continue
-            else:
-                break
+            return provider
 
         else:
             raise RuntimeError('All providers failed, something serious is '
-                               'probably wrong.')
-        return provider
+                               'probably wrong.', sub_errors)
 
     def mailgun(self):
         """Send with Mailgun."""
