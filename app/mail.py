@@ -10,6 +10,8 @@ from ses_mailer import Mail as SesMailer
 
 from app import app, config
 
+import logging
+
 _mailers = {
     'sendgrid': sendgrid.SendGridClient(config['SENDGRID_API_KEY']),
     'mailgun': Mailgun(config['MAILGUN_FROM_DOMAIN'],
@@ -35,8 +37,6 @@ class RedundantMail():
     def send(self):
         """Try to send the email all available providers."""
 
-        sub_errors = []
-
         for provider in config['PROVIDER_ORDER']:
             try:
                 if provider == 'sendgrid':
@@ -48,13 +48,13 @@ class RedundantMail():
                 elif provider == 'ses':
                     self.ses()
             except Exception as e:
-                sub_errors.append(e)
+                logging.exception(str(e))
                 continue
             return provider
 
         else:
             raise RuntimeError('All providers failed, something serious is '
-                               'probably wrong.', sub_errors)
+                               'probably wrong.')
 
     def mailgun(self):
         """Send with Mailgun."""
@@ -80,7 +80,6 @@ class RedundantMail():
 
     def mandrill(self):
         """Send with Mandrill."""
-        ...
 
     def ses(self):
         """Send with Amazon SES."""

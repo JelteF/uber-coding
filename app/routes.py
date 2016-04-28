@@ -5,6 +5,8 @@ from flask import render_template, request, flash
 from app.mail import RedundantMail
 from app import app
 
+import logging
+
 
 @app.route('/')
 def home():
@@ -23,7 +25,8 @@ def send_mail():
     try:
         provider = RedundantMail(**used_form_vals).send()
     except RuntimeError as e:
-        flash(e.args[0], 'danger')
+        flash(str(e), 'danger')
+        logging.exception(str(e))
         return_code = 502
     else:
         flash("Email was successfully sent using " + provider.capitalize(),
