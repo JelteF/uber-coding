@@ -13,7 +13,7 @@ html(lang="nl")
 
             div.row
                 div.col-md-6
-                    form(action="/mail", method="POST")
+                    form(action=url_for("send_mail"), method="POST")
                         div.form-group
                             label(for="to-email-input") Email address
                             input#to-email-input.form-control(type="email", name="to_email", placeholder="example@example.com")
