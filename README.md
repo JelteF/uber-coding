@@ -42,7 +42,8 @@ A Rust project I've been working on is
 [derive_more](https://github.com/JelteF/derive_more), which extends the
 automatically derivable traits in Rust with other common ones.
 
-And lastly I have created an easy wrapper around Linux FUSE, so you can create a
+And lastly I have created an easy Python wrapper around Linux FUSE, called
+[easyfuse](https://github.com/JelteF/easyfuse). With it you can create a
 filesystem out of basically anything.
 
 ## Resume
